@@ -12,7 +12,7 @@ launch_job
 
 install calloutd from git
 
-    git clone https://github.com/jackieju/callout_gem.git
+    git clone https://github.com/jackieju/calloutd_gem.git
     cd calloutd_gem
     build callaoutd.gemspec
     gem install *.gem
