@@ -5,11 +5,6 @@ Passed on ruby 1.8.7
 install
 ===
 
-dependency:
-rubyutility
-ps_grep
-launch_job
-
 install calloutd from git
 
     git clone https://github.com/jackieju/calloutd_gem.git
@@ -46,4 +41,4 @@ Usage
             return YouClass.new
             end
         end
-3. 
+
