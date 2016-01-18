@@ -74,7 +74,7 @@ class CallOut
             
             s = "#{fs_room}/_#{s_obj}_#{s_n}.callout"
             
-            Dir[s] do |filename|
+            Dir[s].each{|filename|
                 File.delete(filename)
             end
             
