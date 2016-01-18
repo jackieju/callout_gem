@@ -76,7 +76,7 @@ class CallOut
             
             Dir[s].each{|filename|
                 File.delete(filename)
-            end
+            }
             
         end
 
@@ -227,6 +227,11 @@ def launch_calloutd(_hash=nil)
         if _hash[:ms] ==nil
             _hash[:fn] = 0.01
         end
+    else
+        _hash = {
+            :fn=>"calloutd",
+            :ms=>0.01
+        }
     end
     launch_job_with_hash(_hash)
 end

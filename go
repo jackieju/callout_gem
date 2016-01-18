@@ -1,4 +1,6 @@
 rm *.gem
+echo build...
 gem build calloutd.gemspec
-gem install *.gem
+echo install...
+gem install --local *.gem
 # sudo gem install --local calloutd*.gem
