@@ -76,7 +76,7 @@ class CallOut
             
             Dir[s].each{|filename|
                 File.delete(filename)
-            end
+           } 
             
         end
 
