@@ -219,8 +219,16 @@ def calloutd
         
     
 end
-def launch_calloutd
-    launch_job("calloutd", 0.01)
+def launch_calloutd(_hash=nil)
+    if _hash
+        if _hash[:fn] ==nil
+            _hash[:fn] = "calloutd"
+        end
+        if _hash[:ms] ==nil
+            _hash[:fn] = 0.01
+        end
+    end
+    launch_job_with_hash(_hash)
 end
 
 =begin
