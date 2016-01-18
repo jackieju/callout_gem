@@ -61,10 +61,19 @@ class CallOut
             return if !obj && !n
             
             if obj == nil
-                s = "#{fs_room}/_*_#{method}.callout"
+                s_obj = "*"
             else
-                s = "#{fs_room}/_#{obj}_#{method}.callout"
+                s_obj = "#{obj}"
             end
+            
+            if n == nil
+                s_n = "*"
+            else
+                s_n = "#{n}"
+            end
+            
+            s = "#{fs_room}/_#{s_obj}_#{s_n}.callout"
+            
             Dir[s] do |filename|
                 File.delete(filename)
             end
