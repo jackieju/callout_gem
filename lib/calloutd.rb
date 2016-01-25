@@ -25,6 +25,7 @@ end
 =end
 
 class CallOut
+    @@debug = false
     @@callout_fs_root = "."
     class << self
         def fs_root
@@ -34,23 +35,36 @@ class CallOut
         def set_fs_root(dir)
             @@callout_fs_root = dir
         end
-        def gen_callout_string(obj, method, delay=0, p=nil)
-            oid = ""
-            if obj !=nil
-                if obj.class == String
-                    oid = obj
-                else
-                    oid = obj.obj_id
-                end
-            end
+        def set_debug(_d)
+            @@debug = _d
+        end
+        def debug?
+            @@debug
+        end
+        # need to be override
+        def obj_id(obj)
+            return obj.to_s
+        end
+        def gen_callout_string(oid, method, delay=0, p=nil)
+           
             s = "#{oid}|:|#{method.to_s}|:|#{delay}|:|#{p.to_json}"
-            p s
+            p "callout str:#{s}" if debug?
             return s
         end
         
         def callout(obj, method, delay=0, *p)
-            s = gen_callout_string(obj, method, delay, p)
-            fname="#{fs_root}/#{Time.now.to_f}_#{obj}_#{method}.callout"
+             oid = ""
+                if obj !=nil
+                    if obj.class == String
+                        oid = obj
+                    else
+                        # oid = obj.obj_id
+                        oid = obj_id(obj)
+                    end
+                end
+                
+            s = gen_callout_string(oid, method, delay, p)
+            fname="#{fs_root}/#{Time.now.to_f}_#{oid}_#{method}.callout"
             save_to_file(s, fname)
             dir = get_dir(fname)
            
@@ -63,7 +77,11 @@ class CallOut
             if obj == nil
                 s_obj = "*"
             else
-                s_obj = "#{obj}"
+                if obj.class == String
+                    s_obj = "#{obj}"
+                else
+                    s_obj = obj_id(obj)
+                end
             end
             
             if n == nil
@@ -105,9 +123,9 @@ class CallOut
                 return if !fname
                 pure_fname = fname.split("/").last
                 f_tm = pure_fname.gsub(".callout", "").to_f
-                p "tm:#{f_tm}"
+                p "tm:#{f_tm}" if debug?
                 begin
-                  p "fname:#{fname}"
+                  p "fname:#{fname}" if debug?
                    if FileTest::exists?(fname)   
 
                        data = nil
@@ -130,22 +148,22 @@ class CallOut
                     
                             # TODO maybe need reserve error callouts
                            if data ==nil || data[:method] == nil
-                               p "delete callout file #{fname}"
+                               p "delete callout file #{fname}" if debug?
                                File.delete(fname)
                                next
                            end
                        
                            if data 
-                               p "done21"
+                               # p "done21"
                                r = yield(data)
-                               p "done22"
+                               # p "done22"
                                if r== true
-                                   p "delete callout file #{fname}"
+                                   p "delete callout file #{fname}" if debug?
                                    
                                    File.delete(fname) 
                                end
                            else
-                               p "delete callout file #{fname}"
+                               p "delete callout file #{fname}" if debug?
                                
                                File.delete(fname) 
                            end
@@ -176,17 +194,20 @@ class CallOut
 end
 def calloutd
         CallOut.pick_callouts(){|data|
-            p data.inspect
+            p "data:#{data.inspect}" if CallOut.debug?
             if data[:method]
                 if data[:delay] && Time.now.to_f - data[:tm] < data[:delay]
                     next false
                 end
-                # p "oid=>#{data[:oid]}"
+                p "oid=>#{data[:oid]}"if CallOut.debug?
                 if (data[:oid] && data[:oid] !="")
                     n = CallOut.get_obj(data[:oid])
+                    p "object=>#{n}"if CallOut.debug?
+                    
                     if n && n.respond_to?(data[:method])
                         begin
-                            if p
+                            p "==>callout #{data[:method]} on object #{n}, params:#{data[:p]}" if CallOut.debug?
+                            if data[:p]
                                 n.send(data[:method])
                             else
                                 n.send(data[:method], *data[:p])
@@ -200,7 +221,9 @@ def calloutd
                     end
                 else
                     begin
-                        if p
+                        p "==>callout #{data[:method]}, params:#{data[:p]}" if CallOut.debug?
+                        
+                        if data[:p]
                             Object.send(data[:method])
                         else
                             Object.send(data[:method], *data[:p])
